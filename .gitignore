@@ -1,2 +1,5 @@
 weights/*
 dataset/*
+!dataset/check_dataset.py
+__pycache__/
+**/__pycache__

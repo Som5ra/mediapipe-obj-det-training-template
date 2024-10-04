@@ -1,38 +1,43 @@
 import os
 import tensorflow as tf
+from datetime import datetime
+
 from tensorflow.keras import layers
 assert tf.__version__.startswith('2')
 
 from mediapipe_model_maker import object_detector
 from mediapipe_model_maker import quantization
 
+from utils.util_logging import create_logger
+from utils.util_config import load_config
+
+import argparse
 
 # my_devices = tf.config.experimental.list_physical_devices(device_type='CPU')
 # tf.config.experimental.set_visible_devices(devices = my_devices, device_type='CPU')
 
 
 
-def prepare_dataset(train_dataset_path, validation_dataset_path):
+def prepare_dataset(train_dataset_path, validation_dataset_path, cache_name):
 
-    train_data = object_detector.Dataset.from_coco_folder(train_dataset_path, cache_dir="/tmp/od_data/v4_concated_fp/train")
-    validation_data = object_detector.Dataset.from_coco_folder(validation_dataset_path, cache_dir="/tmp/od_data/v4_concated_fp/validation")
+    train_data = object_detector.Dataset.from_coco_folder(train_dataset_path, cache_dir=f"/tmp/od_data/{cache_name}/train")
+    validation_data = object_detector.Dataset.from_coco_folder(validation_dataset_path, cache_dir=f"/tmp/od_data/{cache_name}/validation")
     print("train_data size: ", train_data.size)
     print("validation_data size: ", validation_data.size)
 
     return train_data, validation_data
 
-def train(train_data, validation_data, epochs):
+def train(train_data, validation_data, config, save_at):
 
     spec = object_detector.SupportedModels.MOBILENET_V2_I320
 
 
-    hparams = object_detector.HParams(batch_size=32, 
-                                      learning_rate = 0.01, 
-                                      cosine_decay_epochs = epochs, 
-                                      cosine_decay_alpha = 0.00001,
+    hparams = object_detector.HParams(batch_size=config.batch_size, 
+                                      learning_rate = config.learning_rate, 
+                                      cosine_decay_epochs = config.cosine_decay_epochs, 
+                                      cosine_decay_alpha = config.cosine_decay_alpha,
                                       epochs = epochs, 
-                                    #   export_dir=f'weights/exported_model_v3_{epochs}_epoch@cocofp')
-                                      export_dir=f'weights/exported_model_v4_{epochs}_epoch@cocofp@aug')
+                                      export_dir=f'{save_at}')
     
     options = object_detector.ObjectDetectorOptions(
         supported_model=spec,
@@ -69,14 +74,36 @@ def quantize_int8(model, train_data, validation_data, epochs):
     model.export_model('model_int8_qat.tflite')
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config_file", required=True, type=str, help="Path to the config .py file")
+    args = parser.parse_args()
 
+    config = load_config(args.config_file)
 
-    epochs_for_training = 120
+    print(config)
+    # Now you can access the variables like config['epochs']
+    epochs = config.epochs
+    train_dataset_path = config.train_dataset_path
+    validation_dataset_path = config.validation_dataset_path
+    export_fp16 = config.export_fp16
+
+    weights_save_dir = os.path.join(config.weights_save_dir, os.path.basename(args.config_file).split('.')[0] + '-' + datetime.now().strftime("%Y-%m-%d"))
+
+    logger = create_logger(name='[training_logger]')
+
+    logger.info(f"Training started with epochs: {epochs}")
+    logger.info(f"Train dataset path: {train_dataset_path}")
+    logger.info(f"Validation dataset path: {validation_dataset_path}")
+    logger.info(f"Exporting fp16: {export_fp16}")
 
     train_data, validation_data = prepare_dataset(
-        train_dataset_path="/media/sombrali/HDD1/3d_object_detection/mediapipe/dataset/v4/concated_coco_v4/train",
-        validation_dataset_path="/media/sombrali/HDD1/3d_object_detection/mediapipe/dataset/v4/concated_coco_v4/val"
+        train_dataset_path=train_dataset_path,
+        validation_dataset_path=validation_dataset_path,
+        cache_name = config.cache_dataset_name
     )
-    model = train(train_data, validation_data, epochs = epochs_for_training)
-    quantize_fp16(model)
+
+    model = train(train_data, validation_data, config = config, save_at = weights_save_dir)
+
+    if export_fp16:
+        quantize_fp16(model)
     # quantize_int8(model, train_data, validation_data, epochs = epochs_for_training)

@@ -55,53 +55,52 @@ if __name__ == '__main__':
     cv2.namedWindow("Object Detection", cv2.WINDOW_NORMAL)
 
 
-    cap = cv2.VideoCapture(0)
+    # cap = cv2.VideoCapture(0)
 
     # while True:
-        # ret, frame = cap.read()
-    frame = cv2.imread("Image.jpeg")
-    # if not ret:
-    #     break
-    image = mp.Image(image_format=mp.ImageFormat.SRGB, data=cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-
-    detection_result = detector.detect(image)
-
-    image_copy = np.copy(image.numpy_view())
-    annotated_image = visualize(image_copy, detection_result)
-    rgb_annotated_image = cv2.cvtColor(annotated_image, cv2.COLOR_BGR2RGB)
+    #     ret, frame = cap.read()
+    #     if not ret:
+    #         break
+    #     image = mp.Image(image_format=mp.ImageFormat.SRGB, data=cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
     
-    cv2.imshow("Object Detection", rgb_annotated_image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-
-    # coco_possible_fp = "/home/sombrali/coco_dataset/test2017"
-
-    # output_dir = "/media/sombrali/HDD1/3d_object_detection/mediapipe/dataset/v3/coco_test2017_false_positive/"
-    # os.makedirs(output_dir, exist_ok=True)
-    # for image in tqdm.tqdm(os.listdir(coco_possible_fp), total=len(os.listdir(coco_possible_fp))):
-    #     fp_tag = False
-    #     IMAGE_FILE = os.path.join(coco_possible_fp, image)
-
-    #     image = mp.Image.create_from_file(IMAGE_FILE)
-
     #     detection_result = detector.detect(image)
 
-    #     for detection in detection_result.detections:
-    #         # bbox = detection.bounding_box
-    #         for cat in detection.categories:
-    #             cat_n = cat.category_name
-    #             score = cat.score
-    #             if score > 0.5:
-    #                fp_tag = True
-
     #     image_copy = np.copy(image.numpy_view())
-    #     if fp_tag:
-    #         shutil.copy2(IMAGE_FILE, output_dir)
     #     annotated_image = visualize(image_copy, detection_result)
     #     rgb_annotated_image = cv2.cvtColor(annotated_image, cv2.COLOR_BGR2RGB)
         
     #     cv2.imshow("Object Detection", rgb_annotated_image)
     #     cv2.waitKey(1)
-
     # cv2.destroyAllWindows()
+
+
+    coco_possible_fp = "/home/sombrali/coco_dataset/test2017"
+
+    output_dir = "/media/sombrali/HDD1/3d_object_detection/mediapipe/dataset/v4/coco_test2017_false_positive/"
+    os.makedirs(output_dir, exist_ok=True)
+    for image in tqdm.tqdm(os.listdir(coco_possible_fp), total=len(os.listdir(coco_possible_fp))):
+        fp_tag = False
+        IMAGE_FILE = os.path.join(coco_possible_fp, image)
+
+        image = mp.Image.create_from_file(IMAGE_FILE)
+
+        detection_result = detector.detect(image)
+
+        for detection in detection_result.detections:
+            # bbox = detection.bounding_box
+            for cat in detection.categories:
+                cat_n = cat.category_name
+                score = cat.score
+                if score > 0.5:
+                   fp_tag = True
+
+        image_copy = np.copy(image.numpy_view())
+        if fp_tag:
+            shutil.copy2(IMAGE_FILE, output_dir)
+        annotated_image = visualize(image_copy, detection_result)
+        rgb_annotated_image = cv2.cvtColor(annotated_image, cv2.COLOR_BGR2RGB)
+        
+        cv2.imshow("Object Detection", rgb_annotated_image)
+        cv2.waitKey(1)
+
+    cv2.destroyAllWindows()
