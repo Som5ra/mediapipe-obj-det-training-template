@@ -1,5 +1,6 @@
 import os
 import tensorflow as tf
+import time
 from datetime import datetime
 
 from tensorflow.keras import layers
@@ -96,14 +97,30 @@ if __name__ == '__main__':
     logger.info(f"Validation dataset path: {validation_dataset_path}")
     logger.info(f"Exporting fp16: {export_fp16}")
 
+    start_time = time.time()
+
     train_data, validation_data = prepare_dataset(
         train_dataset_path=train_dataset_path,
         validation_dataset_path=validation_dataset_path,
         cache_name = config.cache_dataset_name
     )
+    
+    dataset_prepare_time = time.time()
+    logger.info(f"Dataset preparation time: {dataset_prepare_time - start_time} seconds")
 
     model = train(train_data, validation_data, config = config, save_at = weights_save_dir)
+    training_time = time.time()
+    logger.info(f"Training time: {training_time - dataset_prepare_time} seconds")
 
     if export_fp16:
         quantize_fp16(model)
+        export_fp16_time = time.time()
+        logger.info(f"Exporting fp16 time: {export_fp16_time - training_time} seconds")
+
+    logger.info(f"Summary:")
+    logger.info(f"Dataset preparation time: {dataset_prepare_time - start_time} seconds")
+    logger.info(f"Training time: {training_time - dataset_prepare_time} seconds")
+    if export_fp16:
+        logger.info(f"Exporting fp16 time: {export_fp16_time - training_time} seconds")
+    logger.info(f"Total time: {time.time() - start_time} seconds")
     # quantize_int8(model, train_data, validation_data, epochs = epochs_for_training)
