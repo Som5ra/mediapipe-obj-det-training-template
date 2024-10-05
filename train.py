@@ -30,7 +30,8 @@ def prepare_dataset(train_dataset_path, validation_dataset_path, cache_name):
 
 def train(train_data, validation_data, config, save_at):
 
-    spec = object_detector.SupportedModels.MOBILENET_V2_I320
+    # spec = object_detector.SupportedModels.MOBILENET_V2_I320
+    spec = object_detector.SupportedModels.EFFICIENTNET_LITE2
 
 
     hparams = object_detector.HParams(batch_size=config.batch_size, 

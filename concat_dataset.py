@@ -22,8 +22,8 @@ for tv in train_val:
         with open(f"{dataset}/{tv}/labels.json", "r") as f:
             # labels.extend(json.load(f))
             labels.append(json.load(f))
-        shutil.copytree(f"{dataset}/{tv}/images", f"{concated_dataset}/{tv}/images", dirs_exist_ok=True)
-
+        shutil.copytree(f"{dataset}/{tv}/images", f"{concated_dataset}/{tv}/images", symlinks = True, dirs_exist_ok=True)
+ 
 
     current_label = labels[0]
     global_image_id = len(current_label['images'])

@@ -2,13 +2,13 @@
 epochs = 120
 
 cache_dataset_name = 'headband-autogen-dataset-coco-faceside-20240930'
-train_dataset_path = '/media/sombrali/HDD1/3d_object_detection/mediapipe/dataset/v4/headband-autogen-dataset-coco-faceside-20240930/train'
-validation_dataset_path = '/media/sombrali/HDD1/3d_object_detection/mediapipe/dataset/v4/headband-autogen-dataset-coco-faceside-20240930/val'
+train_dataset_path = '/mnt/HDD_1/mediapipe-obj-det-training-template/dataset/v4/headband-autogen-dataset-coco-faceside-20240930/train'
+validation_dataset_path = '/mnt/HDD_1/mediapipe-obj-det-training-template/dataset/v4/headband-autogen-dataset-coco-faceside-20240930/val'
 
 
 
 # save path would be {weights_save_dir}/{config_name}
-weights_save_dir = '/media/sombrali/HDD1/3d_object_detection/mediapipe/weights'
+weights_save_dir = '/mnt/HDD_1/mediapipe-obj-det-training-template/weights'
 
 export_fp16 = True
 

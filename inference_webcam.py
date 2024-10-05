@@ -46,7 +46,7 @@ def visualize(
 
 if __name__ == '__main__':
 
-    base_options = python.BaseOptions(model_asset_path='/media/sombrali/HDD1/3d_object_detection/mediapipe/weights/exported_model_v4_120_epoch@cocofp@aug/model_fp16.tflite')
+    base_options = python.BaseOptions(model_asset_path='/media/sombrali/HDD1/3d_object_detection/mediapipe/weights/v4-pure-syndata-2024-10-04/model_fp16.tflite')
     options = vision.ObjectDetectorOptions(base_options=base_options,
                                         score_threshold=0.4)
     detector = vision.ObjectDetector.create_from_options(options)
@@ -74,16 +74,19 @@ if __name__ == '__main__':
     # cv2.destroyAllWindows()
 
 
+    # coco_possible_fp = "/media/sombrali/HDD1/3d_object_detection/mediapipe/dataset/google/disney headband-proxy"
     coco_possible_fp = "/home/sombrali/coco_dataset/test2017"
 
     output_dir = "/media/sombrali/HDD1/3d_object_detection/mediapipe/dataset/v4/coco_test2017_false_positive/"
     os.makedirs(output_dir, exist_ok=True)
     for image in tqdm.tqdm(os.listdir(coco_possible_fp), total=len(os.listdir(coco_possible_fp))):
         fp_tag = False
-        IMAGE_FILE = os.path.join(coco_possible_fp, image)
-
-        image = mp.Image.create_from_file(IMAGE_FILE)
-
+        try:
+            IMAGE_FILE = os.path.join(coco_possible_fp, image)
+            image = mp.Image.create_from_file(IMAGE_FILE)
+        except Exception as e:
+            print(f"Error reading image: {e}")
+            continue
         detection_result = detector.detect(image)
 
         for detection in detection_result.detections:
@@ -91,7 +94,7 @@ if __name__ == '__main__':
             for cat in detection.categories:
                 cat_n = cat.category_name
                 score = cat.score
-                if score > 0.5:
+                if score > 0.7:
                    fp_tag = True
 
         image_copy = np.copy(image.numpy_view())
