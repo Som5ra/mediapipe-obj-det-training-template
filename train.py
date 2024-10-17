@@ -30,8 +30,7 @@ def prepare_dataset(train_dataset_path, validation_dataset_path, cache_name):
 
 def train(train_data, validation_data, config, save_at):
 
-    # spec = object_detector.SupportedModels.MOBILENET_V2_I320
-    spec = object_detector.SupportedModels.EFFICIENTNET_LITE2
+    spec = config.model_spec
 
 
     hparams = object_detector.HParams(batch_size=config.batch_size, 
@@ -66,8 +65,8 @@ def quantize_fp16(model):
 
 
 def quantize_int8(model, train_data, validation_data, epochs):
-# qat_hparams = object_detector.QATHParams(learning_rate = 0.2, batch_size = 16, epochs = 20, decay_steps=6, decay_rate=0.96)
-    qat_hparams = object_detector.QATHParams(batch_size=32, learning_rate = 0.01, decay_steps = 20, decay_rate = 0.96, epochs = epochs)
+    qat_hparams = object_detector.QATHParams(learning_rate = 0.2, batch_size = 16, epochs = 20, decay_steps=6, decay_rate=0.96)
+    # qat_hparams = object_detector.QATHParams(batch_size=32, learning_rate = 0.01, decay_steps = 20, decay_rate = 0.96, epochs = epochs)
     model.restore_float_ckpt()
     model.quantization_aware_training(train_data, validation_data, qat_hparams=qat_hparams)
     qat_loss, qat_coco_metrics = model.evaluate(validation_data)

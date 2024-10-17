@@ -1,3 +1,6 @@
+from mediapipe_model_maker import object_detector
+
+model_spec = object_detector.SupportedModels.MOBILENET_V2_I320
 
 epochs = 120
 
