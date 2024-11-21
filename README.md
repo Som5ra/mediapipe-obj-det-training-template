@@ -8,3 +8,4 @@ It has features:
 1. Image Augmentation: refer to [`Image Augmentation`](https://github.com/Sombraa711/mediapipe-obj-det-training-template/blob/main/mediapipe-model-maker-modified/python/vision/object_detector/preprocessor.py#L100-L112)
 2. Enable Training with Negative Samples: refer to 
 3. Save intermediate checkpoints: refer to [`History Checkpoints`](https://github.com/Sombraa711/mediapipe-obj-det-training-template/blob/main/mediapipe-model-maker-modified/python/vision/object_detector/object_detector.py#L116-L130)
+
